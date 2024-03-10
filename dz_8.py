@@ -39,16 +39,15 @@ class Record:
     def add_birthday(self, birthday):
         self.birthday = Birthday(birthday)
 
-    def add_phone(self, phone):
-        if phone in self.phones:
-            return self.phones
-        else:
-            self.phones.append(Phone(phone))
-
     def find_phone(self, phone):
         for p in self.phones:
             if p.value == phone:
                 return p
+            
+    def add_phone(self, phone):
+        p = self.find_phone(phone)
+        if p is None:
+            self.phones.append(Phone(phone))
             
     def remove_phone(self, phone):
         p = self.find_phone(phone)
@@ -72,7 +71,7 @@ class AddressBook(UserDict):
     def find(self, name):
         for names, record in self.data.items():
             if name in names:
-                return record
+                return self.data[name]
     
     def find_birthday(self, name):
         for names, record in self.data.items():
@@ -80,8 +79,8 @@ class AddressBook(UserDict):
                 return f"Contact name:{name}, birthday: {record.birthday.value.strftime("%d.%m.%Y")}"
             
     def delete(self, name):
-        user = self.find(name)
-        del user
+        self.data.pop(name)
+        
     
     def get_upcoming_birthdays(self):
         now = dtdt.today().date() #поточний час
@@ -142,12 +141,16 @@ def show_phone(args, book: AddressBook):
 
 @input_error
 def show_all(book: AddressBook):
+    message = "contact list"
     for name, record in book.data.items():
         print(record)
+    return message
 
 def delete(args, book: AddressBook):
     name, *_ = args
-    return book.delete(name)
+    book.delete(name)
+    message = "Contact delete."
+    return message
 
 @input_error
 def add_birthday(args, book: AddressBook):
@@ -172,15 +175,12 @@ def birthdays(book: AddressBook):
 
 import pickle
 
-
-
 def load_data(filename="addressbook.pkl"):
     try:
         with open(filename, "rb") as f:
             return pickle.load(f)
     except FileNotFoundError:
         return AddressBook()  # Повернення нової адресної книги, якщо файл не знайдено
-    
     
 def main():
     book = load_data()
