@@ -143,7 +143,7 @@ def show_phone(args, book: AddressBook):
 @input_error
 def show_all(book: AddressBook):
     for name, record in book.data.items():
-        return record
+        print(record)
 
 def delete(args, book: AddressBook):
     name, *_ = args
