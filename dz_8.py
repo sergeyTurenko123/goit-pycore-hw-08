@@ -69,9 +69,7 @@ class AddressBook(UserDict):
         self.data[record.name.value] = record
 
     def find(self, name):
-        for names, record in self.data.items():
-            if name in names:
-                return self.data[name]
+        return self.data[name]
     
     def find_birthday(self, name):
         for names, record in self.data.items():
