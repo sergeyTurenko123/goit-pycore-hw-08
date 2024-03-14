@@ -1,8 +1,10 @@
 from collections import UserDict, UserList
 import datetime  as dt
 from datetime import datetime  as dtdt
+from abc import ABC, abstractmethod
 
-class Field:
+class Field(ABC):
+    @abstractmethod
     def __init__(self, value):
         self.value = value
 
@@ -69,7 +71,9 @@ class AddressBook(UserDict):
         self.data[record.name.value] = record
 
     def find(self, name):
-        return self.data[name]
+        for names, record in self.data.items():
+            if name in names:
+                return self.data[record]
     
     def find_birthday(self, name):
         for names, record in self.data.items():
