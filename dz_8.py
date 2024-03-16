@@ -3,8 +3,7 @@ import datetime  as dt
 from datetime import datetime  as dtdt
 from abc import ABC, abstractmethod
 
-class Field(ABC):
-    @abstractmethod
+class Field:
     def __init__(self, value):
         self.value = value
 
@@ -73,7 +72,7 @@ class AddressBook(UserDict):
     def find(self, name):
         for names, record in self.data.items():
             if name in names:
-                return self.data[record]
+                return self.data[names]
     
     def find_birthday(self, name):
         for names, record in self.data.items():
@@ -82,25 +81,55 @@ class AddressBook(UserDict):
             
     def delete(self, name):
         self.data.pop(name)
-        
+
+    def all(self):
+        for record in self.data.values():
+            print(record)
     
     def get_upcoming_birthdays(self):
         now = dtdt.today().date() #поточний час
-        birthday = []
+        birthdays = []
         for name, record in self.data.items():
             date_user = record.birthday.value
             week_day = date_user.isoweekday()
             difference_day = (date_user.day - now.day)
             if 1 <= difference_day < 7 :
                 if difference_day < 6 :
-                    birthday.append({"name": name, "birthday":date_user.strftime("%d.%m.%Y")})
+                    birthdays.append({"name": name, "birthday":date_user.strftime("%d.%m.%Y")})
                 else:
                     if difference_day == 7:
-                        birthday.append({"name": name, "birthday":(date_user + dt.timedelta(days = 1)).strftime("%d.%m.%Y")})
+                        birthdays.append({"name": name, "birthday":(date_user + dt.timedelta(days = 1)).strftime("%d.%m.%Y")})
                     elif difference_day == 6:
-                        birthday.append({"name": name, "birthday":(date_user + dt.timedelta(days = 2)).strftime("%d.%m.%Y")})
-        return birthday
+                        birthdays.append({"name": name, "birthday":(date_user + dt.timedelta(days = 2)).strftime("%d.%m.%Y")})
+        for birthday in birthdays:
+            print(f"{birthday.get("name")}, {birthday.get("birthday")}")
+        return "birthdays"
 
+class Bot(ABC):
+    @abstractmethod
+    def return_all_users(self):
+        raise NotImplementedError()
+    @abstractmethod
+    def return_help(self):
+        raise NotImplementedError()
+
+class SimpleBot(Bot):
+    def return_all_users(self, book: AddressBook):
+        self.book = book
+        return self.book.all()
+    def return_help(self):
+        raise NotImplementedError()
+
+class TableBot(Bot):
+    def return_help(self, function):
+        commands = []
+        self.function = function
+        for command in self.function:
+            if command in self.function:
+                commands.append(command)
+        return commands
+    def return_all_users(self):
+        raise NotImplementedError()
 
 def parse_input(user_input):
     name, *args = user_input.split()
@@ -142,11 +171,10 @@ def show_phone(args, book: AddressBook):
     return book.find(name)
 
 @input_error
-def show_all(book: AddressBook):
-    message = "contact list"
-    for name, record in book.data.items():
-        print(record)
-    return message
+def show_all(book: AddressBook):  
+    return book.all()
+    # message = "contact list"
+    # return message
 
 def delete(args, book: AddressBook):
     name, *_ = args
@@ -171,9 +199,9 @@ def show_birthday(args, book: AddressBook):
     name, *_ = args
     return book.find_birthday(name)
 
-@input_error
-def birthdays(book: AddressBook):
-    return book.get_upcoming_birthdays()
+# @input_error
+# def birthdays(book: AddressBook):
+#     return book.get_upcoming_birthdays()
 
 import pickle
 
@@ -212,7 +240,8 @@ def main():
         elif command == "show":
             print(show_birthday(args, book))
         elif command == "birthdays":
-            print(birthdays(book)) 
+            print(book.get_upcoming_birthdays())
+            # print(birthdays(book)) 
         else:
             print("Invalid command.")
 
@@ -221,6 +250,11 @@ def save_data(book, filename="addressbook.pkl"):
         pickle.dump(book, f)
 
 
+
 if __name__ == "__main__":
-    main()
-    
+    # main()
+    addressBook = AddressBook()
+    bot = SimpleBot()
+    print(bot.return_all_users(load_data()))
+    bot = TableBot()
+    print(bot.return_help(main))
