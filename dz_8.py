@@ -105,32 +105,6 @@ class AddressBook(UserDict):
             print(f"{birthday.get("name")}, {birthday.get("birthday")}")
         return "birthdays"
 
-class Bot(ABC):
-    @abstractmethod
-    def return_all_users(self):
-        raise NotImplementedError()
-    @abstractmethod
-    def return_help(self):
-        raise NotImplementedError()
-
-class SimpleBot(Bot):
-    def return_all_users(self, book: AddressBook):
-        self.book = book
-        return self.book.all()
-    def return_help(self):
-        raise NotImplementedError()
-
-class TableBot(Bot):
-    def return_help(self, function):
-        commands = []
-        self.function = function
-        for command in self.function:
-            if command in self.function:
-                commands.append(command)
-        return commands
-    def return_all_users(self):
-        raise NotImplementedError()
-
 def parse_input(user_input):
     name, *args = user_input.split()
     name = name.strip().lower()
@@ -170,9 +144,9 @@ def show_phone(args, book: AddressBook):
     name, *_ = args
     return book.find(name)
 
-@input_error
-def show_all(book: AddressBook):  
-    return book.all()
+# @input_error
+# def show_all(book: AddressBook):  
+#     return book.all()
     # message = "contact list"
     # return message
 
@@ -203,6 +177,24 @@ def show_birthday(args, book: AddressBook):
 # def birthdays(book: AddressBook):
 #     return book.get_upcoming_birthdays()
 
+class AbstractBot(ABC):
+    def return_all_users(self):
+        raise NotImplementedError()
+    
+    def return_help(self):
+        raise NotImplementedError()
+    
+class SimpleBot(AbstractBot):
+
+    def return_all_users(self, addressbook: AddressBook):
+        self.addressbook = addressbook
+        return self.addressbook.all()
+    
+    def return_help(self, commands):
+        print("Available commands:")
+        for command in commands:
+            print(f"- {command}")
+
 import pickle
 
 def load_data(filename="addressbook.pkl"):
@@ -213,9 +205,13 @@ def load_data(filename="addressbook.pkl"):
         return AddressBook()  # Повернення нової адресної книги, якщо файл не знайдено
     
 def main():
+    view = SimpleBot()
     book = load_data()
     print("Welcome to the assistant bot!")
+    view.return_all_users(load_data())
+    view.return_help(["add name phone", "change name old phone new phone","phone name","delete name ","all","add_birthday name date","show name","birthdays"])
     while True:
+        
         user_input = input("Enter a command: ")
         command, *args = parse_input(user_input)
 
@@ -234,7 +230,8 @@ def main():
         elif command == "delete":
             print(delete(args, book))
         elif command == "all":
-            print(show_all(book))
+            print(book.all())
+            # print(show_all(book))
         elif command == "add_birthday":
             print(add_birthday(args, book))
         elif command == "show":
@@ -244,17 +241,11 @@ def main():
             # print(birthdays(book)) 
         else:
             print("Invalid command.")
-
+    
 def save_data(book, filename="addressbook.pkl"):
     with open(filename, "wb") as f:
         pickle.dump(book, f)
 
-
-
 if __name__ == "__main__":
-    # main()
-    addressBook = AddressBook()
-    bot = SimpleBot()
-    print(bot.return_all_users(load_data()))
-    bot = TableBot()
-    print(bot.return_help(main))
+    main()
+    
