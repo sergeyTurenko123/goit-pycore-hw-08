@@ -31,7 +31,25 @@ class Birthday(Field):
         except ValueError:
             raise ValueError("Invalid date format. Use DD.MM.YYYY")
 
-class Record:
+class AbstractRecord(ABC):
+    @abstractmethod
+    def add_birthday(self):
+        raise NotImplementedError()
+    @abstractmethod
+    def find_phone(self):
+        raise NotImplementedError()
+    @abstractmethod
+    def add_phone(self):
+        raise NotImplementedError()
+    @abstractmethod
+    def remove_phone(self):
+        raise NotImplementedError()
+    @abstractmethod
+    def edit_phone(self):
+        raise NotImplementedError()
+    
+    
+class Record(AbstractRecord):
     def __init__(self, name):
         self.name = Name(name)
         self.phones = []
@@ -178,9 +196,10 @@ def show_birthday(args, book: AddressBook):
 #     return book.get_upcoming_birthdays()
 
 class AbstractBot(ABC):
+    @abstractmethod
     def return_all_users(self):
         raise NotImplementedError()
-    
+    @abstractmethod
     def return_help(self):
         raise NotImplementedError()
     
