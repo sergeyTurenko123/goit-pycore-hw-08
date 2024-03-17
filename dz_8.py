@@ -98,9 +98,9 @@ class AddressBook(UserDict):
                     birthdays.append({"name": name, "birthday":date_user.strftime("%d.%m.%Y")})
                 else:
                     if difference_day == 7:
-                        birthdays.append({"name": name, "birthday":(date_user + dt.timedelta(days = 1)).strftime("%d.%m.%Y")})
+                        birthdays.append({"name": name, "birthday":(date_user + dt.timedelta(days = -2)).strftime("%d.%m.%Y")})
                     elif difference_day == 6:
-                        birthdays.append({"name": name, "birthday":(date_user + dt.timedelta(days = 2)).strftime("%d.%m.%Y")})
+                        birthdays.append({"name": name, "birthday":(date_user + dt.timedelta(days = -1)).strftime("%d.%m.%Y")})
         for birthday in birthdays:
             print(f"{birthday.get("name")}, {birthday.get("birthday")}")
         return "birthdays"
@@ -209,7 +209,7 @@ def main():
     book = load_data()
     print("Welcome to the assistant bot!")
     view.return_all_users(load_data())
-    view.return_help(["add name phone", "change name old phone new phone","phone name","delete name ","all","add_birthday name date","show name","birthdays"])
+    view.return_help(["add name phone", "change name old phone new phone","phone name","delete name ","all","birthday name date","show name","birthdays"])
     while True:
         
         user_input = input("Enter a command: ")
@@ -232,7 +232,7 @@ def main():
         elif command == "all":
             print(book.all())
             # print(show_all(book))
-        elif command == "add_birthday":
+        elif command == "birthday":
             print(add_birthday(args, book))
         elif command == "show":
             print(show_birthday(args, book))
