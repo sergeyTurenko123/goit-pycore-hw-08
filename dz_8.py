@@ -90,7 +90,7 @@ class AddressBook(UserDict):
     def find(self, name):
         for names, record in self.data.items():
             if name in names:
-                return self.data[names]
+                return f"Contact name:{name}, phones: {'; '.join(p.value for p in record.phones)}"   #self.data[names]
     
     def find_birthday(self, name):
         for names, record in self.data.items():
@@ -121,6 +121,8 @@ class AddressBook(UserDict):
                         birthdays.append({"name": name, "birthday":(date_user + dt.timedelta(days = -1)).strftime("%d.%m.%Y")})
         for birthday in birthdays:
             print(f"{birthday.get("name")}, {birthday.get("birthday")}")
+        if not len(birthdays):
+            print("Ther are no upcoming birthdays.")
         return "birthdays"
 
 def parse_input(user_input):
@@ -214,6 +216,10 @@ class SimpleBot(AbstractBot):
         for command in commands:
             print(f"- {command}")
 
+    def return_birthdays(self, addressbook: AddressBook):
+        self.addressbook = addressbook
+        return self.addressbook.get_upcoming_birthdays()
+
 import pickle
 
 def load_data(filename="addressbook.pkl"):
@@ -228,7 +234,9 @@ def main():
     book = load_data()
     print("Welcome to the assistant bot!")
     view.return_all_users(load_data())
+    view.return_birthdays(load_data())
     view.return_help(["add name phone", "change name old phone new phone","phone name","delete name ","all","birthday name date","show name","birthdays"])
+    
     while True:
         
         user_input = input("Enter a command: ")
@@ -266,5 +274,6 @@ def save_data(book, filename="addressbook.pkl"):
         pickle.dump(book, f)
 
 if __name__ == "__main__":
+    
     main()
     
